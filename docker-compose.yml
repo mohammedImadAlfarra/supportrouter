@@ -1,0 +1,60 @@
+# SupportRouter demo stack (Phase 9): the API and an MLflow tracking server.
+# Start with `make compose-up` (it sets HOST_PROJECT_DIR); no database server (non-goal).
+#
+# Nothing is baked into the image: models/ and mlruns/ are mounted, the HMAC key comes from
+# .env at run time. The API reads the registry through the `mlflow` service;
+# mlruns/ is also mounted at its absolute host path because runs created on the host record
+# `file:///<host path>/mlruns/artifacts/...` artifact URIs.
+
+x-mlruns-host-path: &mlruns-host-path
+  type: bind
+  source: ./mlruns
+  target: ${HOST_PROJECT_DIR:?run docker compose through make compose-up}/mlruns
+
+services:
+  mlflow:
+    image: supportrouter:0.1.0  # same image as the API: identical MLflow 3.17.1 version
+    pull_policy: never
+    command:
+      - mlflow
+      - server
+      - --backend-store-uri=sqlite:////app/mlruns/mlflow.db
+      - --host=0.0.0.0
+      - --port=5000
+      - --workers=1
+      - --no-serve-artifacts  # artifacts are file:// paths on the shared mount
+      - --allowed-hosts=mlflow:5000,localhost:5000,127.0.0.1:5000
+    volumes:
+      - ./mlruns:/app/mlruns  # read-write: the server is the only writer of mlflow.db
+      - <<: *mlruns-host-path
+        read_only: true
+    ports:
+      - "127.0.0.1:5000:5000"  # MLflow UI on this machine only
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=4)
+      interval: 5s
+      timeout: 5s
+      start_period: 30s
+      retries: 6
+
+  api:
+    build: .
+    image: supportrouter:0.1.0
+    env_file: .env  # PREDICTION_LOG_KEY; never written into this file
+    environment:
+      SUPPORTROUTER_TRACKING_URI: http://mlflow:5000
+      LOG_RAW_TEXT: "0"  # raw-text debug logging is never on in Docker
+    volumes:
+      - ./models:/app/models:ro  # weights + tokenizer; hash-checked on load
+      - <<: *mlruns-host-path
+        read_only: true  # the logged model.sha256 artifact
+      - ./logs:/app/logs  # predictions.jsonl (hashes only) stays on the host
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      mlflow:
+        condition: service_healthy

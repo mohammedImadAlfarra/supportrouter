@@ -1,0 +1,63 @@
+{
+  "model": "b1-sample3000",
+  "family": "b1",
+  "mlflow_run_id": "bc72ac25525b478e9b42d5fab9ef2431",
+  "mode": "sample",
+  "eval_set": "test",
+  "sample_size": 3000,
+  "seed": 42,
+  "test_sha256": "a4aee1912e6a638e7d3fbc3a51fbd3d2c1e6bb1ef0c8222d27986cd984032412",
+  "test_rows": 3642,
+  "params": {
+    "best_c": "100.0",
+    "c_grid": "[0.1, 1.0, 10.0, 100.0, 1000.0]"
+  },
+  "metrics": {
+    "intent_accuracy": 0.9840746842394289,
+    "intent_macro_f1": 0.9821703134632841,
+    "intent_weighted_f1": 0.984046011951281,
+    "category_accuracy": 0.9956068094453597,
+    "category_macro_f1": 0.9959275435339815,
+    "category_weighted_f1": 0.9956037190361626
+  },
+  "per_intent_f1": {
+    "cancel_order": 0.9105691056910569,
+    "change_order": 0.9465648854961832,
+    "change_shipping_address": 0.993103448275862,
+    "check_cancellation_fee": 1.0,
+    "check_invoice": 0.974910394265233,
+    "check_payment_methods": 0.9966329966329966,
+    "check_refund_policy": 0.9897610921501706,
+    "complaint": 0.9933774834437086,
+    "contact_customer_service": 0.9897610921501706,
+    "contact_human_agent": 0.9865771812080537,
+    "create_account": 0.973384030418251,
+    "delete_account": 0.9565217391304348,
+    "delivery_options": 0.9948717948717949,
+    "delivery_period": 0.9933333333333333,
+    "edit_account": 0.9824561403508771,
+    "get_invoice": 0.9731800766283525,
+    "get_refund": 0.9776119402985075,
+    "newsletter_subscription": 0.9966329966329966,
+    "payment_issue": 0.98989898989899,
+    "place_order": 0.9733333333333334,
+    "recover_password": 0.9966329966329966,
+    "registration_problems": 0.9864864864864865,
+    "review": 1.0,
+    "set_up_shipping_address": 1.0,
+    "switch_account": 0.9879518072289156,
+    "track_order": 0.9739130434782609,
+    "track_refund": 0.9811320754716981
+  },
+  "latency": {
+    "latency_p50_ms": 0.5465604990604334,
+    "latency_p95_ms": 0.6491771006039927,
+    "latency_calls": 300
+  },
+  "model_size_bytes": 1010666,
+  "hardware": {
+    "cpu": "AMD Ryzen 5 5625U with Radeon Graphics",
+    "cores": 12,
+    "python": "3.11.17"
+  }
+}

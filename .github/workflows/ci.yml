@@ -1,0 +1,97 @@
+# CI: Phase 0 checks + Phase 10 coverage, secret scan and quality gate.
+# Three independent jobs; any failure blocks the push/PR.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: lint, types, tests + coverage
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1"
+          enable-cache: true
+
+      - name: Install locked dependencies
+        run: make setup
+
+      # ruff, mypy, pytest with coverage of src/ (fails under 70%), requirements.txt in sync
+      - name: Lint, type check, tests with coverage, requirements sync
+        run: make check
+
+  secrets:
+    name: gitleaks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # every commit is scanned, not only the last one
+          persist-credentials: false
+
+      # Same digest-pinned image as `make secrets-scan`; a finding exits 1 and fails the job.
+      - name: Scan git history for secrets
+        run: make secrets-scan
+
+  quality-gate:
+    name: quality gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1"
+          enable-cache: true
+
+      - name: Install locked dependencies
+        run: make setup
+
+      # Public dataset at the pinned revision; no token, no secrets.
+      - name: Download raw data
+        run: make data
+
+      # Rebuilds train/val/test and refuses to continue unless they match the
+      # committed manifest byte for byte (raw, cleaned and split hashes).
+      - name: Rebuild frozen split and verify against the committed manifest
+        run: make split
+
+      # B1 on the 3000-row train sample, scored on validation; test is never read.
+      - name: Quality gate (val macro-F1 >= 0.85)
+        run: |
+          make quality-gate
+          cat reports/quality_gate.json
+
+      # Self-test: with an impossible threshold the same gate must fail.
+      - name: Gate fails when the threshold is raised
+        run: |
+          if QUALITY_GATE_MIN_F1=1.0 make quality-gate; then
+            echo "::error::quality gate passed with threshold 1.0; the gate is broken"
+            exit 1
+          fi
+          echo "gate correctly failed with threshold 1.0"

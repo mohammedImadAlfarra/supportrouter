@@ -1,0 +1,177 @@
+# SupportRouter default configuration.
+# Every path, seed and threshold lives here, not in module code.
+# Relative paths are resolved against the repository root.
+
+seed: 42
+# Default N for `--sample` (SAMPLE mode).
+sample_size: 3000
+
+data:
+  hf_dataset_id: bitext/Bitext-customer-support-llm-chatbot-training-dataset
+  # Pinned dataset commit: a moving branch name such as "main" is refused.
+  hf_revision: 430d1a89bd93bd1fa23c16f29dd53e73f0087443
+  raw_dir: data/raw
+  raw_file: bitext_customer_support.csv
+
+# Frozen split (Phase 3). Stratified by intent, seed above.
+split:
+  processed_dir: data/processed
+  train: 0.70
+  val: 0.15
+  test: 0.15
+  # Report-only near-duplicate rule: char 3-5-gram TF-IDF cosine to the nearest train row.
+  near_duplicate_threshold: 0.90
+
+# Baselines (Phase 4). B0 = majority class; B1 = TF-IDF + Logistic Regression.
+baselines:
+  b1:
+    ngram_range: [1, 2]
+    # C is chosen on validation macro-F1, never on test.
+    c_grid: [0.1, 1.0, 10.0, 100.0, 1000.0]
+    max_iter: 1000
+  # Two runs with the same seed must agree within this on every val metric.
+  metric_tolerance: 1.0e-9
+
+# Transformer T1 (Phase 5). Fine-tuned on train; best epoch chosen on val macro-F1.
+transformer:
+  model_name: distilbert-base-uncased
+  # Pinned Hugging Face model commit, same rule as the dataset pin.
+  revision: 12040accade4e8a0f71eabdb258fecc2e7e948be
+  # Train max is 32 tokens (2026-11-03): 0% of train is truncated at 64.
+  max_length: 64
+  learning_rate: 5.0e-5
+  epochs: 3
+  batch_size: 16
+  eval_batch_size: 64
+  # Fraction of all optimizer steps spent warming the learning rate up from 0.
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  # An imported Colab run is re-scored on val locally; GPU vs CPU float noise may flip a
+  # borderline message, but a larger gap means a wrong model, labels or split -> import refused.
+  import_val_tolerance: 0.005
+
+# MLflow tracking + registry: local SQLite store, artifacts on disk; both git-ignored.
+mlflow:
+  db_path: mlruns/mlflow.db
+  artifact_dir: mlruns/artifacts
+  experiment: supportrouter
+  # Registry aliases: `champion` = served model (T1), `fallback` = B1.
+  registered_model: supportrouter-intent
+
+# Local model copies with a SHA-256 sidecar; git-ignored.
+models_dir: models
+
+# Final evaluation on the frozen test split.
+evaluation:
+  reports_dir: reports/metrics
+  # Latency: single message, warm model, CPU; p50/p95 over `latency_calls` after warm-up.
+  latency_calls: 300
+  latency_warmup: 30
+  # Phase 7: per-row test predictions (no message text) for error and robustness analysis.
+  predictions_dir: reports/predictions
+  # Synthetic typo test. Each alphabetic word of at least `typo_min_word_len` letters gets
+  # one random edit (swap, delete, insert, QWERTY neighbour) with probability `rate`; seed above.
+  typo_rates: [0.10, 0.20]
+  typo_min_word_len: 4
+
+# LLM classifier L1/L2 (Phase 6, Advanced): local Ollama only, $0 cap.
+llm:
+  provider: ollama
+  model: "mistral:latest"
+  # Pinned model blob digest; a run is refused if the local model differs.
+  model_digest: 6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf
+  base_url: "http://localhost:11434"
+  timeout_s: 120
+  # Only provider errors are retried, at most this many extra attempts.
+  max_retries: 2
+  # The answer is one short JSON object; this bounds runaway output.
+  max_output_tokens: 32
+  # USD per 1M tokens (local model = 0) and the hard cost cap.
+  price_in_per_1m: 0.0
+  price_out_per_1m: 0.0
+  cost_cap_usd: 0.0
+  # Fixed seeded test subset; L2 takes this many train examples per intent.
+  subset_size: 300
+  few_shot_per_intent: 2
+  results_path: reports/llm_zero_shot.csv
+
+# FastAPI service (Phase 8).
+api:
+  # Registry alias of the served model: T1 = champion, B1 = fallback.
+  model_alias: champion
+  # Confidence < threshold -> needs_human_review (chosen on the val curve, 0.98).
+  review_threshold: 0.98
+  # Longest real message is 92 chars; batch of up to 32 messages per request.
+  max_text_chars: 1000
+  max_batch: 32
+  # One JSON line per prediction, text as HMAC-SHA256 with the key in this env var.
+  log_path: logs/predictions.jsonl
+  log_key_env: PREDICTION_LOG_KEY
+  raw_text_env: LOG_RAW_TEXT
+
+# CI quality gate (Phase 10): B1 SAMPLE trained in CI, scored on validation only.
+quality_gate:
+  min_val_macro_f1: 0.85
+  # Overrides the threshold only to prove the gate fails; never set it in CI.
+  threshold_env: QUALITY_GATE_MIN_F1
+  report_path: reports/quality_gate.json
+
+# Drift monitoring (Phase 11). Traffic comes from the validation split only.
+monitoring:
+  # Val is split (stratified, seed above) into a reference half and a traffic half.
+  reference_share: 0.5
+  # `normal` and `shifted` batches, disjoint rows of the traffic half.
+  batch_size: 300
+  # Shifted batch: this share drawn from these categories ("delivery incident"), the rest from
+  # all other categories, then synthetic typos at `shift_typo_rate` (word length rule from evaluation).
+  shift_categories: [ORDER, DELIVERY]
+  shift_share: 0.70
+  shift_typo_rate: 0.20
+  # request_ids per batch written by simulate_traffic.py (no text); git-ignored like logs/.
+  batches_path: logs/traffic_batches.json
+  # Evidently DataDriftPreset: dataset drift when at least this share of columns drift.
+  drift_share: 0.5
+  report_dir: reports/drift
+
+# Label taxonomy derived once from the real data (Phase 2, 2026-10-17):
+# category -> its intents. Every intent belongs to exactly one category.
+# Reused by validation, training, the LLM prompt and the API.
+labels:
+  ACCOUNT:
+    - create_account
+    - delete_account
+    - edit_account
+    - recover_password
+    - registration_problems
+    - switch_account
+  CANCEL:
+    - check_cancellation_fee
+  CONTACT:
+    - contact_customer_service
+    - contact_human_agent
+  DELIVERY:
+    - delivery_options
+    - delivery_period
+  FEEDBACK:
+    - complaint
+    - review
+  INVOICE:
+    - check_invoice
+    - get_invoice
+  ORDER:
+    - cancel_order
+    - change_order
+    - place_order
+    - track_order
+  PAYMENT:
+    - check_payment_methods
+    - payment_issue
+  REFUND:
+    - check_refund_policy
+    - get_refund
+    - track_refund
+  SHIPPING:
+    - change_shipping_address
+    - set_up_shipping_address
+  SUBSCRIPTION:
+    - newsletter_subscription

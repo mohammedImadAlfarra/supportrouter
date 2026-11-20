@@ -1,0 +1,15 @@
+{
+  "endpoint": "POST /classify",
+  "model_version": "supportrouter-intent/1 (t1, run ed10825b)",
+  "latency": {
+    "latency_p50_ms": 21.61198049907398,
+    "latency_p95_ms": 27.08395895206195,
+    "latency_calls": 300
+  },
+  "target_p95_ms": 250.0,
+  "hardware": {
+    "cpu": "AMD Ryzen 5 5625U with Radeon Graphics",
+    "cores": 12,
+    "python": "3.11.17"
+  }
+}

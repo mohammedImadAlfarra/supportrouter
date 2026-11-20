@@ -1,0 +1,12 @@
+# Build context = only what the Dockerfile copies. Everything else stays out, so secrets,
+# data and models can never end up in an image layer.
+*
+
+!requirements.txt
+!src/
+!app/
+!configs/
+
+# Inside the allowed folders: no caches.
+**/__pycache__
+**/*.py[cod]

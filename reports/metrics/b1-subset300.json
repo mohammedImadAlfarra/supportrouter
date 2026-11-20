@@ -1,0 +1,63 @@
+{
+  "model": "b1",
+  "family": "b1",
+  "mlflow_run_id": "49d31c8a12e64b84a39fcb04b6537ded",
+  "mode": "full",
+  "eval_set": "test-subset-300",
+  "sample_size": null,
+  "seed": 42,
+  "test_sha256": "a4aee1912e6a638e7d3fbc3a51fbd3d2c1e6bb1ef0c8222d27986cd984032412",
+  "test_rows": 300,
+  "params": {
+    "best_c": "100.0",
+    "c_grid": "[0.1, 1.0, 10.0, 100.0, 1000.0]"
+  },
+  "metrics": {
+    "intent_accuracy": 0.9966666666666667,
+    "intent_macro_f1": 0.9969082125603864,
+    "intent_weighted_f1": 0.9966608695652174,
+    "category_accuracy": 0.9966666666666667,
+    "category_macro_f1": 0.9969640748861527,
+    "category_weighted_f1": 0.9966790352504639
+  },
+  "per_intent_f1": {
+    "cancel_order": 1.0,
+    "change_order": 1.0,
+    "change_shipping_address": 1.0,
+    "check_cancellation_fee": 1.0,
+    "check_invoice": 1.0,
+    "check_payment_methods": 1.0,
+    "check_refund_policy": 1.0,
+    "complaint": 1.0,
+    "contact_customer_service": 1.0,
+    "contact_human_agent": 0.96,
+    "create_account": 1.0,
+    "delete_account": 1.0,
+    "delivery_options": 1.0,
+    "delivery_period": 1.0,
+    "edit_account": 1.0,
+    "get_invoice": 1.0,
+    "get_refund": 1.0,
+    "newsletter_subscription": 1.0,
+    "payment_issue": 1.0,
+    "place_order": 0.9565217391304348,
+    "recover_password": 1.0,
+    "registration_problems": 1.0,
+    "review": 1.0,
+    "set_up_shipping_address": 1.0,
+    "switch_account": 1.0,
+    "track_order": 1.0,
+    "track_refund": 1.0
+  },
+  "latency": {
+    "latency_p50_ms": 0.5492509990290273,
+    "latency_p95_ms": 0.6274340505115106,
+    "latency_calls": 300
+  },
+  "model_size_bytes": 2530073,
+  "hardware": {
+    "cpu": "AMD Ryzen 5 5625U with Radeon Graphics",
+    "cores": 12,
+    "python": "3.11.17"
+  }
+}

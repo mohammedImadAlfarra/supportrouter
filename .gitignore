@@ -1,0 +1,37 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+
+# Tool caches
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Data, models, runs, logs — never committed
+/data/raw/
+/data/processed/*
+# The split manifest (hashes and counts, no text) is committed so CI can verify the rebuilt split.
+!/data/processed/split_manifest.json
+/models/
+/mlruns/
+/mlartifacts/
+/logs/
+# Evidently HTML reports are ~3.7 MB each; only the small summary in reports/drift/ is committed.
+/reports/drift/*.html
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/

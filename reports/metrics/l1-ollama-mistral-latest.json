@@ -1,0 +1,77 @@
+{
+  "model": "l1-ollama-mistral-latest",
+  "family": "l1",
+  "mode": "test-subset-300",
+  "seed": 42,
+  "test_sha256": "a4aee1912e6a638e7d3fbc3a51fbd3d2c1e6bb1ef0c8222d27986cd984032412",
+  "test_rows": 300,
+  "params": {
+    "provider": "ollama",
+    "llm_model": "mistral:latest",
+    "model_digest": "6577803aa9a036369e481d648a2baebb381ebc6e897f2bb9a766a2aa7bfbc1cf",
+    "prompt_version": "v1",
+    "prompt_chars": 865,
+    "few_shot_per_intent": 0,
+    "temperature": 0.0,
+    "max_retries": 2
+  },
+  "metrics": {
+    "intent_accuracy": 0.7933333333333333,
+    "intent_macro_f1": 0.7801464692675073,
+    "intent_weighted_f1": 0.7825935719031165,
+    "category_accuracy": 0.92,
+    "category_macro_f1": 0.9190534101453167,
+    "category_weighted_f1": 0.920798117456974
+  },
+  "per_intent_f1": {
+    "cancel_order": 0.75,
+    "change_order": 0.9523809523809523,
+    "change_shipping_address": 0.631578947368421,
+    "check_cancellation_fee": 1.0,
+    "check_invoice": 0.8461538461538461,
+    "check_payment_methods": 0.96,
+    "check_refund_policy": 0.7058823529411765,
+    "complaint": 0.7647058823529411,
+    "contact_customer_service": 0.5641025641025641,
+    "contact_human_agent": 0.4,
+    "create_account": 1.0,
+    "delete_account": 0.9523809523809523,
+    "delivery_options": 0.8888888888888888,
+    "delivery_period": 0.7368421052631579,
+    "edit_account": 0.8571428571428571,
+    "get_invoice": 0.8,
+    "get_refund": 0.6666666666666666,
+    "newsletter_subscription": 0.8571428571428571,
+    "payment_issue": 0.8695652173913043,
+    "place_order": 0.9166666666666666,
+    "recover_password": 0.9565217391304348,
+    "registration_problems": 0.8571428571428571,
+    "review": 0.5882352941176471,
+    "set_up_shipping_address": 0.7586206896551724,
+    "switch_account": 0.75,
+    "track_order": 0.8333333333333334,
+    "track_refund": 0.2
+  },
+  "invalid_reasons": {},
+  "llm": {
+    "messages": 300,
+    "invalid_rate": 0.0,
+    "avg_input_tokens": 256.73,
+    "avg_output_tokens": 10.306666666666667,
+    "total_cost_usd": 0.0,
+    "cost_per_1k_usd": 0.0,
+    "latency_p50_ms": 1647.4868375007645,
+    "latency_p95_ms": 2052.665819849608
+  },
+  "latency": {
+    "latency_p50_ms": 1647.4868375007645,
+    "latency_p95_ms": 2052.665819849608,
+    "latency_calls": 300
+  },
+  "hardware": {
+    "cpu": "AMD Ryzen 5 5625U with Radeon Graphics",
+    "cores": 12,
+    "python": "3.11.17"
+  },
+  "mlflow_run_id": "69d1e6a253c644488cf81467719b2c33"
+}

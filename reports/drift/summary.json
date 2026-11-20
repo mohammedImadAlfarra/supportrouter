@@ -1,0 +1,128 @@
+{
+  "created": "2026-11-20T12:50:13+00:00",
+  "model_version": "supportrouter-intent/1 (t1, run ed10825b)",
+  "evidently": "0.7.23",
+  "drift_share": 0.5,
+  "shift_categories": [
+    "ORDER",
+    "DELIVERY"
+  ],
+  "profiles": {
+    "reference": {
+      "rows": 1820,
+      "share_in_shift_categories": 0.1945,
+      "mean_confidence": 0.9994,
+      "share_needs_review": 0.0016,
+      "mean_text_chars": 46.86
+    },
+    "normal": {
+      "rows": 300,
+      "share_in_shift_categories": 0.2133,
+      "mean_confidence": 0.9996,
+      "share_needs_review": 0.0033,
+      "mean_text_chars": 46.56
+    },
+    "shifted": {
+      "rows": 300,
+      "share_in_shift_categories": 0.6933,
+      "mean_confidence": 0.9888,
+      "share_needs_review": 0.0567,
+      "mean_text_chars": 47.75
+    }
+  },
+  "batches": [
+    {
+      "batch": "normal",
+      "rows": 300,
+      "drifted_columns": 1,
+      "drift_share": 0.2,
+      "dataset_drift": false,
+      "columns": [
+        {
+          "column": "confidence",
+          "method": "Wasserstein distance (normed)",
+          "threshold": 0.1,
+          "score": 0.03619120041785528,
+          "drifted": false
+        },
+        {
+          "column": "text_chars",
+          "method": "Wasserstein distance (normed)",
+          "threshold": 0.1,
+          "score": 0.08192225241626194,
+          "drifted": false
+        },
+        {
+          "column": "text_words",
+          "method": "Wasserstein distance (normed)",
+          "threshold": 0.1,
+          "score": 0.09080574171571137,
+          "drifted": false
+        },
+        {
+          "column": "intent",
+          "method": "Jensen-Shannon distance",
+          "threshold": 0.1,
+          "score": 0.11264062833074498,
+          "drifted": true
+        },
+        {
+          "column": "category",
+          "method": "Jensen-Shannon distance",
+          "threshold": 0.1,
+          "score": 0.07340766220890438,
+          "drifted": false
+        }
+      ]
+    },
+    {
+      "batch": "shifted",
+      "rows": 300,
+      "drifted_columns": 4,
+      "drift_share": 0.8,
+      "dataset_drift": true,
+      "columns": [
+        {
+          "column": "confidence",
+          "method": "Wasserstein distance (normed)",
+          "threshold": 0.1,
+          "score": 1.1884777568853393,
+          "drifted": true
+        },
+        {
+          "column": "text_chars",
+          "method": "Wasserstein distance (normed)",
+          "threshold": 0.1,
+          "score": 0.10876260902238366,
+          "drifted": true
+        },
+        {
+          "column": "text_words",
+          "method": "Wasserstein distance (normed)",
+          "threshold": 0.1,
+          "score": 0.08425829999610403,
+          "drifted": false
+        },
+        {
+          "column": "intent",
+          "method": "Jensen-Shannon distance",
+          "threshold": 0.1,
+          "score": 0.39137886153708307,
+          "drifted": true
+        },
+        {
+          "column": "category",
+          "method": "Jensen-Shannon distance",
+          "threshold": 0.1,
+          "score": 0.37160597136327067,
+          "drifted": true
+        }
+      ]
+    }
+  ],
+  "acceptance_passed": true,
+  "html": [
+    "drift_normal.html",
+    "drift_shifted.html"
+  ]
+}

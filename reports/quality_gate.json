@@ -1,0 +1,11 @@
+{
+  "model": "b1",
+  "mode": "sample",
+  "sample_size": 3000,
+  "split": "val",
+  "run_id": "775d67521f524f228251ea8975e792f2",
+  "val_intent_macro_f1": 0.9866873908022848,
+  "threshold": 0.85,
+  "threshold_source": "config",
+  "passed": true
+}

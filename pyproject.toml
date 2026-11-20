@@ -1,0 +1,87 @@
+[project]
+name = "supportrouter"
+version = "0.1.0"
+description = "Customer support intent routing with production MLOps"
+requires-python = "==3.11.*"
+dependencies = [
+    "accelerate>=1.15.0",
+    "datasets>=5.1.0",
+    "evidently==0.7.23",
+    "fastapi>=0.156.2",
+    "mlflow>=3.17.1",
+    "pandas>=3.0.6",
+    "pandera>=0.34.1",
+    "pyyaml>=6.0.3",
+    "scikit-learn>=1.9.1",
+    "torch>=2.15.0",
+    "transformers>=5.20.1",
+    "uvicorn>=0.54.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "app"]
+
+[[tool.mypy.overrides]]
+# `datasets` ships no type hints (no py.typed marker).
+module = ["datasets", "datasets.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# scikit-learn ships no type hints (no py.typed marker).
+module = ["sklearn", "sklearn.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# evidently 0.7.23 ships no type hints (no py.typed marker).
+module = ["evidently", "evidently.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# `app/` (FastAPI) sits next to `src/`; tests import it as `app.api`.
+pythonpath = ["."]
+addopts = "-ra --strict-markers"
+
+[tool.coverage.run]
+# Unit-test coverage of src/ >= 70% (Phase 10, CI).
+source = ["src/supportrouter"]
+
+[tool.coverage.report]
+fail_under = 70
+skip_covered = true
+show_missing = true
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "matplotlib>=3.11.2",
+    "mypy>=2.4.0",
+    "pandas-stubs>=3.0.5.260914",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.17.1",
+    "types-pyyaml>=6.0.12.20260906",
+]
+
+# CPU-only PyTorch wheels (no bundled CUDA libraries).
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }

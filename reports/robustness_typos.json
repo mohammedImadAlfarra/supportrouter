@@ -1,0 +1,68 @@
+{
+  "seed": 42,
+  "rates": [
+    0.1,
+    0.2
+  ],
+  "min_word_len": 4,
+  "test_rows": 3642,
+  "examples": {
+    "0.1": [
+      "I want to see how lhong it takes for my item to arrive",
+      "assistance seeing if tehre are any news on my reimbursement",
+      "need help to change my delivery address"
+    ],
+    "0.2": [
+      "I want to see how lhong it takse for my jtem to arrie",
+      "assistance seeing if there are any news on my reimbursement",
+      "need help to change my delivery adfress"
+    ],
+    "0.0": [
+      "I want to see how long it takes for my item to arrive",
+      "assistance seeing if there are any news on my reimbursement",
+      "need help to change my delivery address"
+    ]
+  },
+  "models": {
+    "b1": {
+      "mlflow_run_id": "49d31c8a12e64b84a39fcb04b6537ded",
+      "scores": {
+        "0.0": {
+          "accuracy": 0.9925864909390445,
+          "macro_f1": 0.9916640394163204,
+          "weighted_f1": 0.9925595062404899
+        },
+        "0.1": {
+          "accuracy": 0.9774848984074684,
+          "macro_f1": 0.9754137834695576,
+          "weighted_f1": 0.9774084687009958
+        },
+        "0.2": {
+          "accuracy": 0.9634816035145525,
+          "macro_f1": 0.9619953322241843,
+          "weighted_f1": 0.9635551709533153
+        }
+      }
+    },
+    "t1": {
+      "mlflow_run_id": "ed10825b05224b97a93c86ef513bc4cd",
+      "scores": {
+        "0.0": {
+          "accuracy": 0.9980779791323449,
+          "macro_f1": 0.9977477830405399,
+          "weighted_f1": 0.9980755527359749
+        },
+        "0.1": {
+          "accuracy": 0.9881933003844042,
+          "macro_f1": 0.9876033296450809,
+          "weighted_f1": 0.9882316459927332
+        },
+        "0.2": {
+          "accuracy": 0.9744645799011532,
+          "macro_f1": 0.9736196734456146,
+          "weighted_f1": 0.9744828868271489
+        }
+      }
+    }
+  }
+}
